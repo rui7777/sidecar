@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gameserver
+  labels:
+    app: gameserver
+spec:
+  containers:
+    - name: server1
+      image: localimage/server1:latest
+      imagePullPolicy: Never
+      ports:
+        - containerPort: 80
+    - name: server2
+      image: localimage/server2:latest
+      imagePullPolicy: Never
+      ports:
+        - containerPort: 8080
