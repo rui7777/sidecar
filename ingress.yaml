@@ -1,0 +1,17 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  rules:
+    - host: "sidecar-okura.com"
+      http:
+        paths:
+          - backend:
+              service:
+                name: autoscaler-webhook-service
+                port:
+                  number: 8000
+            path: /
+            pathType: Prefix

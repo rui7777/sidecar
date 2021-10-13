@@ -1,25 +1,19 @@
-# build
 FROM golang:alpine as builder
 
 RUN apk update \
   && apk add git
+WORKDIR /go/src/game-server
 
-RUN mkdir /app
-WORKDIR /app
-COPY go.mod .
-COPY go.sum .
-
-RUN go mod download
 COPY . .
-
-RUN go build -o /main
-
+COPY . /go/src/agones.dev/agones
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server .
 
 # final image
-FROM alpine:3.10
+FROM alpine:3.11
 
 RUN adduser -D -u 1000 server
-COPY --from=builder /main /home/server/server
+COPY --from=builder /go/src/game-server/server /home/server/server
 RUN chown -R server /home/server && \
     chmod o+x /home/server/server
 
