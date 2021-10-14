@@ -22,9 +22,6 @@ var (
 )
 
 type clientRequest struct {
-	Name    string `json:"name"`
-	Host    string `json:"host"`
-	Port    string `json:"port"`
 	Message string `json:"message"`
 }
 
@@ -84,12 +81,22 @@ func listener(w http.ResponseWriter, r *http.Request, port *string, passthrough 
 		port = &p
 	}
 
+	var gs *coresdk.GameServer
+	gs, err = s.GameServer()
+	if err != nil {
+		log.Fatalf("Could not get gameserver port details: %s", err)
+	}
+
+	n := gs.ObjectMeta.Name
+	h := gs.Status.Address
+	p := strconv.FormatInt(int64(gs.Status.Ports[0].Port), 10)
+
 	_, err = handleResponse(cRequest.Message, s, stop)
 
 	cResponse := clientResponse{
-		Name: cRequest.Name,
-		Host: cRequest.Host,
-		Port: cRequest.Port,
+		Name: n,
+		Host: h,
+		Port: p,
 	}
 
 	res, err := json.Marshal(cResponse)
@@ -111,7 +118,7 @@ func handleResponse(txt string, s *sdk.SDK, stop chan struct{}) (response string
 	// shuts down the gameserver
 	case "EXIT":
 		// handle elsewhere, as we respond before exiting
-		return
+		exit(s)
 
 	// turns off the health pings
 	case "UNHEALTHY":

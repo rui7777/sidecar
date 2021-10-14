@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: autoscaler-webhook-service
+  name: dgs-sidecar-service
   labels:
-    app: autoscaler-webhook
+    app: dgs-sidecar
 spec:
   selector:
-    app: autoscaler-webhook
+    app: dgs-sidecar
   ports:
     - port: 8000
       protocol: TCP
@@ -14,41 +14,57 @@ spec:
       targetPort: autoscaler
 ---
 apiVersion: "agones.dev/v1"
-kind: GameServer
+kind: Fleet
 metadata:
-  generateName: "game-server-"
+  name: dgs-sidecar
   labels:
-    app: autoscaler-webhook
+    app: dgs-sidecar
 spec:
-  container: simple-game-server
-  ports:
-    - name: default
-      containerPort: 7654
+  replicas: 2
   template:
-    metadata:
-      labels:
-        app: autoscaler-webhook
     spec:
-      containers:
-        - name: autoscaler-webhook
-          image: localimage/gameserver:latest
-          imagePullPolicy: Never
-          ports:
-            - name: autoscaler
-              containerPort: 8000
-          livenessProbe:
-            httpGet:
-              scheme: HTTP
-              path: /health
-              port: 8000
-            initialDelaySeconds: 3
-            periodSeconds: 5
-        - name: simple-game-server
-          image: gcr.io/agones-images/simple-game-server:0.3
-          resources:
-            requests:
-              memory: "64Mi"
-              cpu: "20m"
-            limits:
-              memory: "64Mi"
-              cpu: "20m"
+      container: simple-game-server
+      ports:
+        - name: default
+          containerPort: 7654
+      template:
+        metadata:
+          labels:
+            app: dgs-sidecar
+        spec:
+          containers:
+            - name: dgs-sidecar
+              image: localimage/gameserver:latest
+              imagePullPolicy: Never
+              ports:
+                - name: autoscaler
+                  containerPort: 8000
+              livenessProbe:
+                httpGet:
+                  scheme: HTTP
+                  path: /health
+                  port: 8000
+                initialDelaySeconds: 3
+                periodSeconds: 5
+            - name: simple-game-server
+              image: gcr.io/agones-images/simple-game-server:0.3
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "20m"
+                limits:
+                  memory: "64Mi"
+                  cpu: "20m"
+---
+apiVersion: "autoscaling.agones.dev/v1"
+kind: FleetAutoscaler
+metadata:
+  name: sidecar-autoscaler
+spec:
+  fleetName: dgs-sidecar
+  policy:
+    type: Buffer
+    buffer:
+      bufferSize: 2
+      minReplicas: 0
+      maxReplicas: 10
