@@ -124,12 +124,15 @@ func handleResponse(txt string, s *sdk.SDK, stop chan struct{}) (response string
 	case "UNHEALTHY":
 		close(stop)
 
+	// GameServerの名前を返す
 	case "GAMESERVER":
 		response = gameServerName(s)
 
+	// PodをReady状態にする
 	case "READY":
 		ready(s)
 
+	// PodをAllocated状態にする
 	case "ALLOCATE":
 		allocate(s)
 
