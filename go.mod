@@ -2,7 +2,10 @@ module main
 
 go 1.17
 
-require agones.dev/agones v1.18.0
+require (
+	agones.dev/agones v1.18.0
+	github.com/vmihailenco/msgpack/v5 v5.3.4
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -22,6 +25,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.4.0 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 	golang.org/x/sys v0.0.0-20201112073958-5cba982894dd // indirect
 	golang.org/x/text v0.3.4 // indirect
