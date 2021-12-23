@@ -1,0 +1,15 @@
+apiVersion: "agones.dev/v1"
+kind: Fleet
+metadata:
+  name: dgs-sidecar
+  labels:
+    app: dgs-sidecar
+spec:
+  replicas: 2
+  template:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: dgs-sidecar
+              image: localimage/gameserver:v1

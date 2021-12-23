@@ -1,0 +1,6 @@
+bases:
+  - ../../base
+
+imageTags:
+  - name: localimage/gameserver
+    newTag: "${IMAGE_TAG}"
